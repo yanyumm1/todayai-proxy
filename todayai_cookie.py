@@ -14,17 +14,17 @@ todayai_cookie.py — 提取 today.ai 账号 session cookie（核心功能）
 
 用法示例：
   # 1) 最常用：交互式输入验证码，提取 cookie 并保存到文件
-  python3 todayai_cookie.py --email nian97865@gmail.com --save .env
+  python3 todayai_cookie.py --email YOUR_EMAIL@example.com --save .env
 
   # 2) 验证码由参数给出（可用于脚本/CI）
-  python3 todayai_cookie.py --email nian97865@gmail.com --otp 123456
+  python3 todayai_cookie.py --email YOUR_EMAIL@example.com --otp 123456
 
   # 3) 自动从 Gmail/IMAP 抓验证码（需应用专用密码）
-  python3 todayai_cookie.py --email nian97865@gmail.com \
-      --imap-host imap.gmail.com --imap-user nian97865@gmail.com --imap-pass xxxx
+  python3 todayai_cookie.py --email YOUR_EMAIL@example.com \
+      --imap-host imap.gmail.com --imap-user YOUR_EMAIL@example.com --imap-pass xxxx
 
   # 4) 提取后顺便更新 Worker 并验证
-  python3 todayai_cookie.py --email nian97865@gmail.com --otp 123456 \
+  python3 todayai_cookie.py --email YOUR_EMAIL@example.com --otp 123456 \
       --update-worker --verify
 
 环境变量（均可被 --xxx 覆盖）:

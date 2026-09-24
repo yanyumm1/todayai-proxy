@@ -8,21 +8,21 @@ update_worker_cookie.py — 一键刷新 today.ai 登录 cookie 到 Cloudflare W
 
 用法示例：
   # 交互式（发验证码后等你输入）
-  python3 update_worker_cookie.py --email nian97865@gmail.com
+  python3 update_worker_cookie.py --email YOUR_EMAIL@example.com
 
   # 手动给验证码
-  python3 update_worker_cookie.py --email nian97865@gmail.com --otp 123456
+  python3 update_worker_cookie.py --email YOUR_EMAIL@example.com --otp 123456
 
   # 自动从 Gmail/IMAP 抓验证码（需应用专用密码）
-  python3 update_worker_cookie.py --email nian97865@gmail.com \
-      --imap-host imap.gmail.com --imap-user nian97865@gmail.com --imap-pass xxxx
+  python3 update_worker_cookie.py --email YOUR_EMAIL@example.com \
+      --imap-host imap.gmail.com --imap-user YOUR_EMAIL@example.com --imap-pass xxxx
 
   # 只生成命令不执行（配合 wrangler 手动跑）
   python3 update_worker_cookie.py --email xxx --otp 123456 --dry-run
 
 环境变量（均可被 --xxx 覆盖）:
   TODAYAI_EMAIL        账号邮箱
-  CLOUDFLARE_API_TOKEN CF API Token（部署用的 cfut_...）
+  CLOUDFLARE_API_TOKEN CF API Token（--update-worker 时需要）
   CLOUDFLARE_ACCOUNT_ID CF Account ID
   GATEWAY_API_KEY      网关密钥（--test 时需要）
   TODAYAI_GATEWAY_URL  网关地址（--test 时需要）
