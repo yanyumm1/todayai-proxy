@@ -121,6 +121,29 @@ cron 示例（每月 1 号凌晨刷新）：
 0 3 1 * * cd /path/to/todayai-proxy && python3 update_worker_cookie.py --json >> /var/log/todayai-cookie.log 2>&1
 ```
 
+## GitHub Action 自动刷新(可选)
+
+仓库已带 `.github/workflows/refresh-cookie.yml`，推送后在 **GitHub Actions** 页点 **Run workflow** 即可手动刷新。
+
+两种模式（Action 自动判断）：
+
+| 模式 | 需要 | 说明 |
+|---|---|---|
+| 手动 OTP | 无 | Run workflow 时在 **otp** 输入框填邮箱收到的验证码 |
+| IMAP 全自动 | 仓库配置 `TODAYAI_IMAP_PASS` 等 secrets | 无需人工，适合定时 |
+
+**仓库 Secrets 需配置**（Settings → Secrets and variables → Actions）：
+
+| Secret | 必填 | 说明 |
+|---|---|---|
+| `TODAYAI_EMAIL` | ✅ | today.ai 账号邮箱 |
+| `CLOUDFLARE_API_TOKEN` | ✅ | CF API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | ✅ | CF Account ID |
+| `GATEWAY_API_KEY` | 建议 | 网关密钥（`--verify` 用） |
+| `TODAYAI_IMAP_HOST/USER/PASS` | 仅自动模式 | IMAP 抓验证码（如 imap.gmail.com + 应用专用密码） |
+
+> 没有 IMAP 密码也能用：每次手动触发填 OTP 即可，3 秒搞定。
+
 ## curl 测试
 
 ```bash
