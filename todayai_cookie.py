@@ -5,8 +5,7 @@ todayai_cookie.py — 提取 today.ai 账号 session cookie（核心功能）
 =================================================================
 流程: 发送 OTP 验证码 → 输入/自动抓取验证码 → 登录 → 提取 session cookie 值。
 
-默认只提取 cookie 值（打印 + 可选存文件），供你手动填 Workers 变量、
-配 todayai.py direct 模式或任何其他地方用。
+默认只提取 cookie 值（打印 + 可选存文件），供你手动填 Workers 变量、配 direct 模式或任何其他地方用。
 
 可选扩展：
   --update-worker  提取后自动写入 CF Worker secret TODAY_SESSION_COOKIE

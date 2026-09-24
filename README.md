@@ -78,32 +78,6 @@ curl -N https://todayai-proxy.<子域>.workers.dev/v1/chat/completions \
 |---|---|
 | `worker.js` | CF Workers 版（协议已实测校准） |
 | `wrangler.toml` | Worker 配置 |
+| `todayai_cookie.py` | 一键提取 today.ai session cookie（可选自动写入 Worker secret） |
+| `update_worker_cookie.py` | 全自动版：提取 cookie + 更新 Worker + 网关验证 |
 | `README.md` | 本文档 |
-## Python 客户端 todayai.py（工作流适配）
-
-两种模式：`direct`（直连上游，本机持 cookie）/ `gateway`（走 CF Worker 网关）。
-
-```bash
-# gateway 模式（推荐，只需网关地址 + key）
-export TODAYAI_MODE=gateway
-export TODAYAI_GATEWAY_URL=https://todayai-proxy.asd0611.workers.dev/v1
-export TODAYAI_API_KEY=sk-today-...
-python3 todayai.py "你好"
-
-# direct 模式（本机持 session cookie，自动换 1h token）
-export TODAYAI_MODE=direct
-export TODAYAI_SESSION_COOKIE='__Secure-better-auth.session_token=...'
-python3 todayai.py "你好"
-
-# 工作流友好输出（JSON / stdin 管道）
-echo "消息" | python3 todayai.py --json
-python3 todayai.py "消息" --model today-power --stream
-```
-
-库调用：
-
-```python
-from todayai import TodayAIClient
-c = TodayAIClient.for_gateway("https://todayai-proxy.asd0611.workers.dev/v1", "sk-today-...")
-print(c.chat("你好"))
-```
