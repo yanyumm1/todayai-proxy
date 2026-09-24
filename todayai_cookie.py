@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-todayai_cookie.py — 提取 today.ai 账号 session cookie（核心功能）
+todayai_cookie.py — 提取 today.ai 账号 session cookie（手动挡）
 =================================================================
+定位：给人手动用。交互式提取 cookie 值（打印 + 可选存文件），
+供你手动填 Workers 变量或任何其他地方。
+
+要自动化/无人值守（IMAP 抓码 + 自动写 Worker secret + JSON 输出），
+请用 update_worker_cookie.py（自动挡）。
+
 流程: 发送 OTP 验证码 → 输入/自动抓取验证码 → 登录 → 提取 session cookie 值。
 
 默认只提取 cookie 值（打印 + 可选存文件），供你手动填 Workers 变量、配 direct 模式或任何其他地方用。
