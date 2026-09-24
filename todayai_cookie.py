@@ -60,7 +60,7 @@ COOKIE_PREFIX = "__Secure-better-auth.session_token="
 
 # ---------- HTTP ----------
 
-def api(url: str, method: str = "GET", body=None, headers=None, timeout: float = 30):
+def api(url: str, method: str = "GET", body=None, headers=None, timeout: float = 30, want_headers: bool = False):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url, data=data, method=method)
     req.add_header("User-Agent", UA)
@@ -72,9 +72,14 @@ def api(url: str, method: str = "GET", body=None, headers=None, timeout: float =
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             raw = r.read()
-            return r.status, json.loads(raw) if raw else None
+            parsed = json.loads(raw) if raw else None
+            if want_headers:
+                return r.status, parsed, r.headers
+            return r.status, parsed
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", "replace")[:300]
+        if want_headers:
+            return e.code, {"error": detail}, e.headers
         return e.code, {"error": detail}
 
 
@@ -129,13 +134,29 @@ def fetch_otp_imap(host: str, user: str, password: str, timeout_s: int = 120) ->
 
 
 def sign_in(email: str, otp: str) -> dict:
-    code, data = api(f"{BASE}/api/auth/sign-in/email-otp",
-                     "POST", {"email": email, "otp": otp})
+    code, data, resp_headers = api(f"{BASE}/api/auth/sign-in/email-otp",
+                                   "POST", {"email": email, "otp": otp},
+                                   want_headers=True)
     if code != 200:
         raise RuntimeError(f"登录失败: HTTP {code} {data}")
     if not data.get("token"):
         raise RuntimeError(f"登录响应缺少 token: {data}")
-    return {"name": (data.get("user") or {}).get("name", "?"), "token": data["token"]}
+
+    # 关键：body 的 token 是短 ID（无签名），Set-Cookie 里的才是完整可用 cookie 值。
+    # 完整格式: __Secure-better-auth.session_token=<id>.<signature>
+    session_token = ""
+    for sc in (resp_headers.get_all("Set-Cookie") or []):
+        if sc.startswith(COOKIE_PREFIX):
+            session_token = sc.split(";", 1)[0]
+            if session_token.startswith(COOKIE_PREFIX):
+                session_token = session_token[len(COOKIE_PREFIX):]
+            break
+    if not session_token:
+        session_token = data["token"]
+
+    return {"name": (data.get("user") or {}).get("name", "?"),
+            "token": session_token,
+            "cookie": COOKIE_PREFIX + session_token}
 
 
 # ---------- 2) 可选: 写入 CF Worker secret ----------
@@ -215,7 +236,7 @@ def main(argv=None) -> int:
     # 3) 登录提取 cookie
     print("🔐 第 3 步：OTP 登录并提取 session cookie...")
     info = sign_in(args.email, otp)
-    cookie = COOKIE_PREFIX + info["token"]
+    cookie = info["cookie"]
     session_life = time.strftime("%Y-%m-%d", time.localtime(time.time() + 59 * 86400))
     print(f"👤 登录用户: {info['name']} | session 预计有效期至 {session_life}")
 
