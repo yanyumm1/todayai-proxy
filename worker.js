@@ -27,14 +27,18 @@ const FRONT_URL = "https://today.ai";
 // API token 内存缓存（Worker 实例内共享）
 let apiTokenCache = { token: null, expiresAtMs: 0 };
 
-/** 用 session cookie 换 API token（cached 1h） */
+/** 用 session cookie 换 API token（cached 1h）；也支持直填 TODAY_API_TOKEN */
 async function getApiToken(env) {
   const now = Date.now();
+  // 直填模式：直接用静态 token（用户手动抓的，有效期约 1h，过期需更新 secret）
+  if (env.TODAY_API_TOKEN) {
+    return env.TODAY_API_TOKEN;
+  }
   if (apiTokenCache.token && apiTokenCache.expiresAtMs - now > 60_000) {
     return apiTokenCache.token;
   }
   if (!env.TODAY_SESSION_COOKIE) {
-    throw new Error("未配置 TODAY_SESSION_COOKIE");
+    throw new Error("未配置 TODAY_SESSION_COOKIE 或 TODAY_API_TOKEN");
   }
   const res = await fetch(`${FRONT_URL}/api/token`, {
     method: "POST",
@@ -176,9 +180,9 @@ const CORS_HEADERS = {
 async function handleChatCompletions(request, env) {
   const authErr = checkAuth(request, env);
   if (authErr) return authErr;
-  if (!env.TODAY_SESSION_COOKIE) {
+  if (!env.TODAY_SESSION_COOKIE && !env.TODAY_API_TOKEN) {
     return new Response(
-      JSON.stringify({ error: "未配置 TODAY_SESSION_COOKIE (wrangler secret put TODAY_SESSION_COOKIE)" }),
+      JSON.stringify({ error: "未配置 TODAY_SESSION_COOKIE 或 TODAY_API_TOKEN" }),
       { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
     );
   }
